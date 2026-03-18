@@ -30,36 +30,25 @@ use Tools;
 final class PageChoiceProvider extends AbstractDatabaseChoiceProvider
 {
     /**
-     * @var array
-     */
-    private $pageNames;
-
-    /**
      * PageChoiceProvider constructor.
      *
-     * @param Connection $connection
      * @param string $dbPrefix
      * @param int $idLang
-     * @param array $shopIds
-     * @param array $pageNames
      */
     public function __construct(
         Connection $connection,
         $dbPrefix,
         $idLang,
         array $shopIds,
-        array $pageNames
+        private readonly array $pageNames
     ) {
         parent::__construct($connection, $dbPrefix, $idLang, $shopIds);
-        $this->pageNames = $pageNames;
     }
 
     /**
-     * @return array
-     *
      * @throws EntityNotFoundException
      */
-    public function getChoices()
+    public function getChoices(): array
     {
         $choices = [];
         foreach ($this->pageNames as $pageName) {

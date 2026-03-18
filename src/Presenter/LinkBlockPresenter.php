@@ -33,30 +33,23 @@ class LinkBlockPresenter
 {
     private $link;
     private $language;
-    private $linkFilter;
 
     /**
      * LinkBlockPresenter constructor.
-     *
-     * @param \Link $link
-     * @param \Language $language
      */
-    public function __construct(\Link $link, \Language $language, ?LinkFilter $linkFilter = null)
+    public function __construct(\Link $link, \Language $language, private readonly ?LinkFilter $linkFilter = new LinkFilter())
     {
         $this->link = $link;
         $this->language = $language;
-        $this->linkFilter = $linkFilter ?? new LinkFilter();
     }
 
     /**
-     * @param LinkBlock $cmsBlock
      *
-     * @return array
      *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    public function present(LinkBlock $cmsBlock)
+    public function present(LinkBlock $cmsBlock): array
     {
         return [
             'id' => (int) $cmsBlock->id,
@@ -71,15 +64,13 @@ class LinkBlockPresenter
      * Check the url if is an external link.
      *
      * @param string $url
-     *
-     * @return bool
      */
-    public function isExternalLink($url)
+    public function isExternalLink($url): bool
     {
-        $baseLink = preg_replace('#^(http)s?://#', '', $this->link->getBaseLink());
+        $baseLink = preg_replace('#^(http)s?://#', '', (string) $this->link->getBaseLink());
         $url = Tools::strtolower($url);
 
-        if (preg_match('#^(http)s?://#', $url) && !preg_match('#^(http)s?://' . preg_quote(rtrim($baseLink, '/'), '/') . '#', $url)) {
+        if (preg_match('#^(http)s?://#', $url) && !preg_match('#^(http)s?://' . preg_quote(rtrim((string) $baseLink, '/'), '/') . '#', $url)) {
             return true;
         }
 
@@ -87,12 +78,10 @@ class LinkBlockPresenter
     }
 
     /**
-     * @param array $content
      * @param array $custom_content
      *
-     * @return array
      */
-    private function makeLinks($content, $custom_content)
+    private function makeLinks(array $content, $custom_content): array
     {
         $cmsLinks = $productLinks = $staticsLinks = $customLinks = $categoryLinks = [];
 
@@ -126,12 +115,11 @@ class LinkBlockPresenter
     /**
      * @param array $cmsIds
      *
-     * @return array
      *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    private function makeCmsLinks($cmsIds)
+    private function makeCmsLinks($cmsIds): array
     {
         $cmsLinks = [];
         foreach ($cmsIds as $cmsId) {
@@ -152,17 +140,17 @@ class LinkBlockPresenter
 
     /**
      * @param array $productIds
-     *
-     * @return array
      */
-    private function makeProductLinks($productIds)
+    private function makeProductLinks($productIds): array
     {
         $productLinks = [];
         foreach ($productIds as $productId) {
-            if (false === $productId || $this->isLinkDisabled($productId)) {
+            if (false === $productId) {
                 continue;
             }
-
+            if ($this->isLinkDisabled($productId)) {
+                continue;
+            }
             $meta = \Meta::getMetaByPage($productId, (int) $this->language->id);
             $productLinks[] = [
                 'id' => 'link-product-page-' . $productId,
@@ -178,17 +166,17 @@ class LinkBlockPresenter
 
     /**
      * @param array $staticIds
-     *
-     * @return array
      */
-    private function makeStaticLinks($staticIds)
+    private function makeStaticLinks($staticIds): array
     {
         $staticLinks = [];
         foreach ($staticIds as $staticId) {
-            if (false === $staticId || $this->isLinkDisabled($staticId)) {
+            if (false === $staticId) {
                 continue;
             }
-
+            if ($this->isLinkDisabled($staticId)) {
+                continue;
+            }
             $meta = \Meta::getMetaByPage($staticId, (int) $this->language->id);
             $staticLinks[] = [
                 'id' => 'link-static-page-' . $staticId,
@@ -202,12 +190,7 @@ class LinkBlockPresenter
         return $staticLinks;
     }
 
-    /**
-     * @param array $customContent
-     *
-     * @return array
-     */
-    private function makeCustomLinks($customContent)
+    private function makeCustomLinks(array $customContent): array
     {
         $customLinks = [];
 
@@ -218,26 +201,21 @@ class LinkBlockPresenter
         $customLinks = $customContent[$this->language->id];
 
         $self = $this;
-        $customLinks = array_map(function ($el) use ($self) {
-            return [
-                'id' => 'link-custom-page-' . Tools::str2url($el['title']),
-                'class' => 'custom-page-link',
-                'title' => $el['title'],
-                'description' => '',
-                'url' => $el['url'],
-                'target' => $self->isExternalLink($el['url']) ? '_blank' : '',
-            ];
-        }, array_filter($customLinks));
 
-        return $customLinks;
+        return array_map(fn(array $el) => [
+            'id' => 'link-custom-page-' . Tools::str2url($el['title']),
+            'class' => 'custom-page-link',
+            'title' => $el['title'],
+            'description' => '',
+            'url' => $el['url'],
+            'target' => $self->isExternalLink($el['url']) ? '_blank' : '',
+        ], array_filter($customLinks));
     }
 
     /**
      * @param array $categoryIds
-     *
-     * @return array
      */
-    private function makeCategoryLinks($categoryIds)
+    private function makeCategoryLinks($categoryIds): array
     {
         $categoryLinks = [];
         foreach ($categoryIds as $categoryId) {
@@ -250,7 +228,7 @@ class LinkBlockPresenter
                 'id' => 'link-category-' . $categoryId,
                 'class' => 'category-link',
                 'title' => $meta['name'],
-                'description' => strip_tags($meta['description']),
+                'description' => strip_tags((string) $meta['description']),
                 'url' => $this->link->getCategoryLink((int) $categoryId),
             ];
         }

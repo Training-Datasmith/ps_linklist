@@ -31,20 +31,14 @@ use PrestaShop\Module\LinkList\Model\LinkBlock;
  */
 class DataMigration
 {
-    /**
-     * @var Db
-     */
-    private $db;
-
-    public function __construct(Db $db)
+    public function __construct(private readonly Db $db)
     {
-        $this->db = $db;
     }
 
     /**
      * Retrieve content from 1.6 module, then cleanup
      */
-    public function migrateData()
+    public function migrateData(): void
     {
         // Copy first table
         $this->db->execute(
@@ -98,7 +92,7 @@ class DataMigration
         );
     }
 
-    private function migrateBlockFooter()
+    private function migrateBlockFooter(): void
     {
         if (!Configuration::get('FOOTER_BLOCK_ACTIVATION')) {
             return;
@@ -148,7 +142,6 @@ class DataMigration
     /**
      * Generate a JSON for the column `content` of link_block
      *
-     * @param array $data
      *
      * @return string
      */
@@ -164,15 +157,13 @@ class DataMigration
     /**
      * Get list of cms IDs from database for a given old cms_block_page
      *
-     * @param int $oldLocation
      *
-     * @return array
      */
-    private function getCmsIdsFromBlock($oldLocation)
+    private function getCmsIdsFromBlock(int $oldLocation): array
     {
         $request = $this->db->executeS(
             'SELECT id_cms FROM  `' . _DB_PREFIX_ . 'cms_block_page`
-            WHERE id_cms_block = ' . (int) $oldLocation . '
+            WHERE id_cms_block = ' . $oldLocation . '
             AND is_category = 0'
         );
 

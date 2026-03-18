@@ -26,9 +26,9 @@ namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
 final class HookChoiceProvider extends AbstractDatabaseChoiceProvider
 {
     /**
-     * @return mixed
+     * @return mixed[]
      */
-    public function getChoices()
+    public function getChoices(): array
     {
         $qb = $this->connection->createQueryBuilder();
         $qb

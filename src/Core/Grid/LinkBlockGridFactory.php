@@ -62,12 +62,6 @@ final class LinkBlockGridFactory
 
     /**
      * HookGridFactory constructor.
-     *
-     * @param TranslatorInterface $translator
-     * @param HookDispatcherInterface $hookDispatcher
-     * @param GridDataFactoryInterface $dataFactory
-     * @param GridFilterFormFactoryInterface $filterFormFactory
-     * @param Context $shopContext
      */
     public function __construct(
         TranslatorInterface $translator,
@@ -84,12 +78,10 @@ final class LinkBlockGridFactory
     }
 
     /**
-     * @param array $hooks
-     * @param array $filtersParams
      *
      * @return GridInterface[]
      */
-    public function getGrids(array $hooks, array $filtersParams)
+    public function getGrids(array $hooks, array $filtersParams): array
     {
         $grids = [];
         foreach ($hooks as $hook) {
@@ -110,7 +102,6 @@ final class LinkBlockGridFactory
      * Each definition depends on the hook, therefore each factory also
      * depends on the hook.
      *
-     * @param array $hook
      *
      * @return GridFactory
      */

@@ -28,34 +28,23 @@ use Doctrine\DBAL\Connection;
 final class CMSPageChoiceProvider extends AbstractDatabaseChoiceProvider
 {
     /**
-     * @var array
-     */
-    private $categories;
-
-    /**
      * CMSPageChoiceProvider constructor.
      *
-     * @param Connection $connection
      * @param string $dbPrefix
-     * @param array $categories
      * @param int $idLang
      * @param array $shopIds
      */
     public function __construct(
         Connection $connection,
         $dbPrefix,
-        array $categories,
+        private readonly array $categories,
         $idLang,
-        $shopIds
+        ?array $shopIds
     ) {
         parent::__construct($connection, $dbPrefix, $idLang, $shopIds);
-        $this->categories = $categories;
     }
 
-    /**
-     * @return array
-     */
-    public function getChoices()
+    public function getChoices(): array
     {
         $choices = [];
 

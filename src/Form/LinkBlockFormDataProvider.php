@@ -36,25 +36,7 @@ use Ps_Linklist;
  */
 class LinkBlockFormDataProvider implements FormDataProviderInterface
 {
-    /**
-     * @var int|null
-     */
-    private $idLinkBlock;
-
-    /**
-     * @var LinkBlockRepository
-     */
-    private $repository;
-
-    /**
-     * @var LinkBlockCacheInterface
-     */
-    private $cache;
-
-    /**
-     * @var array
-     */
-    private $languages;
+    private ?int $idLinkBlock = null;
 
     /**
      * @var Context
@@ -68,34 +50,24 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
 
     /**
      * LinkBlockFormDataProvider constructor.
-     *
-     * @param LinkBlockRepository $repository
-     * @param LinkBlockCacheInterface $cache
-     * @param array $languages
-     * @param Context $shopContext
-     * @param Configuration $configuration
      */
     public function __construct(
-        LinkBlockRepository $repository,
-        LinkBlockCacheInterface $cache,
-        array $languages,
+        private readonly LinkBlockRepository $repository,
+        private readonly LinkBlockCacheInterface $cache,
+        private readonly array $languages,
         Context $shopContext,
         Configuration $configuration
     ) {
-        $this->repository = $repository;
-        $this->cache = $cache;
-        $this->languages = $languages;
         $this->shopContext = $shopContext;
         $this->configuration = $configuration;
     }
 
     /**
-     * @return array
      *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    public function getData()
+    public function getData(): array
     {
         if (null === $this->idLinkBlock) {
             return [
@@ -126,10 +98,10 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
             'id_link_block' => $arrayLinkBlock['id'],
             'block_name' => $arrayLinkBlock['name'],
             'id_hook' => $arrayLinkBlock['id_hook'],
-            'cms' => isset($arrayLinkBlock['content']['cms']) ? $arrayLinkBlock['content']['cms'] : [],
-            'product' => isset($arrayLinkBlock['content']['product']) ? $arrayLinkBlock['content']['product'] : [],
-            'static' => isset($arrayLinkBlock['content']['static']) ? $arrayLinkBlock['content']['static'] : [],
-            'category' => isset($arrayLinkBlock['content']['category']) ? $arrayLinkBlock['content']['category'] : [],
+            'cms' => $arrayLinkBlock['content']['cms'] ?? [],
+            'product' => $arrayLinkBlock['content']['product'] ?? [],
+            'static' => $arrayLinkBlock['content']['static'] ?? [],
+            'category' => $arrayLinkBlock['content']['category'] ?? [],
             'custom' => $arrayCustom,
             'shop_association' => $arrayLinkBlock['shop_association'],
         ]];
@@ -138,9 +110,7 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
     /**
      * Make sure to fill empty multilang fields if value for default is available
      *
-     * @param array $linkBlock
      *
-     * @return array
      */
     public function prepareData(array $linkBlock): array
     {
@@ -173,10 +143,8 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
     }
 
     /**
-     * @param array $data
      *
      * @return array
-     *
      * @throws \PrestaShop\PrestaShop\Adapter\Entity\PrestaShopDatabaseException
      */
     public function setData(array $data)
@@ -221,19 +189,14 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
         return $this->idLinkBlock;
     }
 
-    public function setIdLinkBlock(?int $idLinkBlock)
+    public function setIdLinkBlock(?int $idLinkBlock): static
     {
         $this->idLinkBlock = $idLinkBlock;
 
         return $this;
     }
 
-    /**
-     * @param array $data
-     *
-     * @return array
-     */
-    private function validateLinkBlock(array $data)
+    private function validateLinkBlock(array $data): array
     {
         $errors = [];
         if (!isset($data['id_hook'])) {
@@ -287,12 +250,7 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
         return $errors;
     }
 
-    /**
-     * @param array $custom
-     *
-     * @return bool
-     */
-    private function isEmptyCustom(array $custom)
+    private function isEmptyCustom(array $custom): bool
     {
         $fields = ['title', 'url'];
         foreach ($custom as $langCustom) {
@@ -313,7 +271,7 @@ class LinkBlockFormDataProvider implements FormDataProviderInterface
      *
      * @throws \PrestaShopException
      */
-    private function updateHook($hookId)
+    private function updateHook($hookId): void
     {
         $hookName = Hook::getNameById($hookId);
         $module = Module::getInstanceByName(Ps_Linklist::MODULE_NAME);

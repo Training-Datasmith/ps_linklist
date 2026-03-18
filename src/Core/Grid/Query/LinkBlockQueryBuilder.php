@@ -31,8 +31,6 @@ use PrestaShop\PrestaShop\Core\Grid\Search\SearchCriteriaInterface;
 final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
 {
     /**
-     * @param SearchCriteriaInterface|null $searchCriteria
-     *
      * @return QueryBuilder
      */
     public function getSearchQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
@@ -66,8 +64,6 @@ final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
     }
 
     /**
-     * @param SearchCriteriaInterface|null $searchCriteria
-     *
      * @return QueryBuilder
      */
     public function getCountQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
@@ -81,7 +77,6 @@ final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
     /**
      * Get generic query builder.
      *
-     * @param array $filters
      *
      * @return QueryBuilder
      */

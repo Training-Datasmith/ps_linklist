@@ -31,7 +31,7 @@ final class LegacyLinkBlockCache implements LinkBlockCacheInterface
     /**
      * {@inheritdoc}
      */
-    public function clearModuleCache()
+    public function clearModuleCache(): void
     {
         /** @var Ps_Linklist $module */
         $module = Module::getInstanceByName(Ps_Linklist::MODULE_NAME);

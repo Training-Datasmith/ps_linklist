@@ -52,9 +52,7 @@ class LinkBlockController extends PrestaShopAdminController
 
         $presentedGrids = array_filter(
             $presentedGrids,
-            function ($grid) {
-                return $grid['data']['records_total'] > 0;
-            }
+            fn(array $grid) => $grid['data']['records_total'] > 0
         );
 
         return $this->render('@Modules/ps_linklist/views/templates/admin/link_block/list.html.twig', [
@@ -214,9 +212,7 @@ class LinkBlockController extends PrestaShopAdminController
 
     protected function buildFiltersParamsByRequest(Request $request): array
     {
-        $filtersParams = array_merge(LinkBlockFilters::getDefaults(), $request->query->all());
-
-        return $filtersParams;
+        return array_merge(LinkBlockFilters::getDefaults(), $request->query->all());
     }
 
     /**

@@ -39,28 +39,19 @@ final class LinkBlockDefinitionFactory extends AbstractGridDefinitionFactory
     const FACTORY_ID = 'link_widget_grid_';
 
     /**
-     * @var array
-     */
-    private $hook;
-
-    /**
      * @var MultistoreContextCheckerInterface
      */
     private $multistoreContextChecker;
 
     /**
      * LinkBlockDefinitionFactory constructor.
-     *
-     * @param array $hook
-     * @param MultistoreContextCheckerInterface $multistoreContextChecker
      */
     public function __construct(
-        array $hook,
+        private array $hook,
         MultistoreContextCheckerInterface $multistoreContextChecker,
         HookDispatcherInterface $hookDispatcher
     ) {
         parent::__construct($hookDispatcher);
-        $this->hook = $hook;
         $this->multistoreContextChecker = $multistoreContextChecker;
     }
 

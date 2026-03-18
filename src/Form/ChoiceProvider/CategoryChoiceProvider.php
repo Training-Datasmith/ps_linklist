@@ -25,10 +25,7 @@ namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
  */
 final class CategoryChoiceProvider extends AbstractDatabaseChoiceProvider
 {
-    /**
-     * @return array
-     */
-    public function getChoices()
+    public function getChoices(): array
     {
         $qb = $this->connection->createQueryBuilder();
         $qb

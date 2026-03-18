@@ -34,47 +34,23 @@ use Symfony\Contracts\Translation\TranslatorInterface as Translator;
 class LegacyLinkBlockRepository
 {
     /**
-     * @var Db
-     */
-    private $db;
-
-    /**
-     * @var Shop
-     */
-    private $shop;
-
-    /**
      * @var string
      */
     private $db_prefix;
 
-    /**
-     * @var Translator
-     */
-    private $translator;
-
-    /**
-     * @param Db $db
-     * @param Shop $shop
-     * @param Translator $translator
-     */
-    public function __construct(Db $db, Shop $shop, Translator $translator)
+    public function __construct(private readonly Db $db, private readonly Shop $shop, private readonly Translator $translator)
     {
-        $this->db = $db;
-        $this->shop = $shop;
-        $this->db_prefix = $db->getPrefix();
-        $this->translator = $translator;
+        $this->db_prefix = $this->db->getPrefix();
     }
 
     /**
      * @param int $id_hook
      *
-     * @return array
      *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    public function getByIdHook($id_hook)
+    public function getByIdHook($id_hook): array
     {
         $id_hook = (int) $id_hook;
 
@@ -94,10 +70,7 @@ class LegacyLinkBlockRepository
         return $cmsBlock;
     }
 
-    /**
-     * @return bool
-     */
-    public function createTables()
+    public function createTables(): bool
     {
         $engine = _MYSQL_ENGINE_;
         $success = true;
@@ -141,9 +114,6 @@ class LegacyLinkBlockRepository
         return $this->db->execute($sql);
     }
 
-    /**
-     * @return bool
-     */
     public function installFixtures(): bool
     {
         $success = true;

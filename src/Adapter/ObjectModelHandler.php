@@ -25,11 +25,6 @@ use PrestaShop\PrestaShop\Adapter\Domain\AbstractObjectModelHandler;
 
 class ObjectModelHandler extends AbstractObjectModelHandler
 {
-    /**
-     * @param int $linkBlockId
-     * @param array $associatedShops
-     * @param bool $forceAssociate
-     */
     public function handleMultiShopAssociation(
         int $linkBlockId,
         array $associatedShops,

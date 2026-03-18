@@ -41,70 +41,26 @@ class LinkBlockType extends TranslatorAwareType
     private $translator;
 
     /**
-     * @var array
-     */
-    private $hookChoices;
-
-    /**
-     * @var array
-     */
-    private $cmsPageChoices;
-
-    /**
-     * @var array
-     */
-    private $productPageChoices;
-
-    /**
-     * @var array
-     */
-    private $staticPageChoices;
-
-    /**
-     * @var array
-     */
-    private $categoryChoices;
-
-    /**
-     * @var bool
-     */
-    private $isMultiStoreUsed;
-
-    /**
      * LinkBlockType constructor.
-     *
-     * @param TranslatorInterface $translator
-     * @param array $locales
-     * @param array $hookChoices
-     * @param array $cmsPageChoices
-     * @param array $productPageChoices
-     * @param array $staticPageChoices
-     * @param array $categoryChoices
      */
     public function __construct(
         TranslatorInterface $translator,
         array $locales,
-        array $hookChoices,
-        array $cmsPageChoices,
-        array $productPageChoices,
-        array $staticPageChoices,
-        array $categoryChoices,
-        bool $isMultiStoreUsed
+        private readonly array $hookChoices,
+        private readonly array $cmsPageChoices,
+        private readonly array $productPageChoices,
+        private readonly array $staticPageChoices,
+        private readonly array $categoryChoices,
+        private readonly bool $isMultiStoreUsed
     ) {
         parent::__construct($translator, $locales);
-        $this->hookChoices = $hookChoices;
-        $this->cmsPageChoices = $cmsPageChoices;
-        $this->productPageChoices = $productPageChoices;
-        $this->staticPageChoices = $staticPageChoices;
-        $this->categoryChoices = $categoryChoices;
         $this->translator = $translator;
-        $this->isMultiStoreUsed = $isMultiStoreUsed;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options)
+    public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
             ->add('id_link_block', HiddenType::class)
@@ -197,7 +153,7 @@ class LinkBlockType extends TranslatorAwareType
     /**
      * {@inheritdoc}
      */
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'label' => false,

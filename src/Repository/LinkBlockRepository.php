@@ -42,24 +42,9 @@ class LinkBlockRepository
     private $connection;
 
     /**
-     * @var string
-     */
-    private $dbPrefix;
-
-    /**
-     * @var array
-     */
-    private $languages;
-
-    /**
      * @var TranslatorInterface
      */
     private $translator;
-
-    /**
-     * @var bool
-     */
-    private $isMultiStoreUsed;
 
     /**
      * @var Context
@@ -67,33 +52,21 @@ class LinkBlockRepository
     private $multiStoreContext;
 
     /**
-     * @var ObjectModelHandler
-     */
-    private $objectModelHandler;
-
-    /**
      * LinkBlockRepository constructor.
      *
-     * @param Connection $connection
      * @param string $dbPrefix
-     * @param array $languages
-     * @param TranslatorInterface $translator
      */
     public function __construct(
         Connection $connection,
-        $dbPrefix,
-        array $languages,
+        private $dbPrefix,
+        private readonly array $languages,
         TranslatorInterface $translator,
-        bool $isMultiStoreUsed,
+        private readonly bool $isMultiStoreUsed,
         Context $multiStoreContext,
-        ObjectModelHandler $objectModelHandler
+        private readonly ObjectModelHandler $objectModelHandler
     ) {
         $this->connection = $connection;
-        $this->dbPrefix = $dbPrefix;
-        $this->languages = $languages;
         $this->translator = $translator;
-        $this->isMultiStoreUsed = $isMultiStoreUsed;
-        $this->objectModelHandler = $objectModelHandler;
         $this->multiStoreContext = $multiStoreContext;
     }
 
@@ -117,10 +90,8 @@ class LinkBlockRepository
     }
 
     /**
-     * @param array $data
      *
      * @return string
-     *
      * @throws DatabaseException
      */
     public function create(array $data)
@@ -162,11 +133,10 @@ class LinkBlockRepository
 
     /**
      * @param int $linkBlockId
-     * @param array $data
      *
      * @throws DatabaseException
      */
-    public function update($linkBlockId, array $data)
+    public function update($linkBlockId, array $data): void
     {
         $qb = $this->connection->createQueryBuilder();
         $qb
@@ -245,10 +215,7 @@ class LinkBlockRepository
         }
     }
 
-    /**
-     * @return array
-     */
-    public function createTables()
+    public function createTables(): array
     {
         $errors = [];
         $engine = _MYSQL_ENGINE_;
@@ -292,10 +259,7 @@ class LinkBlockRepository
         return $errors;
     }
 
-    /**
-     * @return array
-     */
-    public function installFixtures()
+    public function installFixtures(): array
     {
         $errors = [];
         $id_hook = (int) Hook::getIdByName('displayFooter');
@@ -335,10 +299,7 @@ class LinkBlockRepository
         return $errors;
     }
 
-    /**
-     * @return array
-     */
-    public function dropTables()
+    public function dropTables(): array
     {
         $errors = [];
         $tableNames = [
@@ -364,12 +325,10 @@ class LinkBlockRepository
 
     /**
      * @param int $linkBlockId
-     * @param array $blockName
-     * @param array $custom
      *
      * @throws DatabaseException
      */
-    private function updateLanguages($linkBlockId, array $blockName, array $custom)
+    private function updateLanguages($linkBlockId, array $blockName, array $custom): void
     {
         foreach ($this->languages as $language) {
             $qb = $this->connection->createQueryBuilder();
@@ -417,14 +376,12 @@ class LinkBlockRepository
     }
 
     /**
-     * @param QueryBuilder $qb
-     * @param string $errorPrefix
      *
      * @return Result|int|string
      *
      * @throws DatabaseException
      */
-    private function executeQueryBuilder(QueryBuilder $qb, $errorPrefix = 'SQL error')
+    private function executeQueryBuilder(QueryBuilder $qb, string $errorPrefix = 'SQL error')
     {
         try {
             $statement = $qb->execute();
@@ -435,12 +392,6 @@ class LinkBlockRepository
         return $statement;
     }
 
-    /**
-     * @param int $idHook
-     * @param int $idShop
-     *
-     * @return int
-     */
     private function getHookMaxPosition(int $idHook, int $idShop): int
     {
         $qb = $this->connection->createQueryBuilder();
@@ -466,8 +417,6 @@ class LinkBlockRepository
     }
 
     /**
-     * @param int $linkBlockId
-     * @param array $shopIds
      *
      * @throws DatabaseException
      */
@@ -488,12 +437,6 @@ class LinkBlockRepository
         }
     }
 
-    /**
-     * @param int $shopId
-     * @param array $positionsData
-     *
-     * @return void
-     */
     public function updatePositions(int $shopId, array $positionsData = []): void
     {
         try {
@@ -515,12 +458,12 @@ class LinkBlockRepository
 
                 try {
                     $qb->execute();
-                } catch (DBALException $e) {
+                } catch (DBALException) {
                     throw new DatabaseException('Could not update #%i');
                 }
             }
             $this->connection->commit();
-        } catch (ConnectionException $e) {
+        } catch (ConnectionException) {
             $this->connection->rollBack();
 
             throw new DatabaseException('Could not update positions.');
@@ -529,7 +472,7 @@ class LinkBlockRepository
 
     private function getUnassociatedShopIds(
         int $linkBlockId
-    ) {
+    ): array {
         $qb = $this->connection->createQueryBuilder();
 
         $qb->select('s.id_shop')

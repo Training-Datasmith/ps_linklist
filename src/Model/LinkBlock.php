@@ -83,9 +83,7 @@ class LinkBlock extends \ObjectModel
             $this->content = json_decode($this->content, true);
             if ($this->custom_content) {
                 $this->custom_content = array_map(
-                    function ($el) {
-                        return json_decode($el ?? '', true);
-                    },
+                    fn($el) => json_decode($el ?? '', true),
                     $this->custom_content
                 );
             }

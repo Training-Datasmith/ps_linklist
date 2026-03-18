@@ -26,7 +26,7 @@ class LinkFilter
     /**
      * @var RouteFilterInterface[]
      */
-    private $routeFilters = [];
+    private array $routeFilters = [];
 
     public function __construct(array $routeFilters = [])
     {
