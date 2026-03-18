@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -43,9 +45,9 @@ class Ps_Linklist extends Module implements WidgetInterface
     /**
      * @var string Name of the module running on PS 1.6.x. Used for data migration.
      */
-    const PS_16_EQUIVALENT_MODULE = 'blockcms';
+    public const PS_16_EQUIVALENT_MODULE = 'blockcms';
 
-    const MODULE_NAME = 'ps_linklist';
+    public const MODULE_NAME = 'ps_linklist';
 
     protected $_html;
     protected $_display;

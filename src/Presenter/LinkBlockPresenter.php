@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -202,7 +204,7 @@ class LinkBlockPresenter
 
         $self = $this;
 
-        return array_map(fn(array $el) => [
+        return array_map(fn (array $el) => [
             'id' => 'link-custom-page-' . Tools::str2url($el['title']),
             'class' => 'custom-page-link',
             'title' => $el['title'],

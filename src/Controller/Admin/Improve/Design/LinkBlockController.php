@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -52,7 +54,7 @@ class LinkBlockController extends PrestaShopAdminController
 
         $presentedGrids = array_filter(
             $presentedGrids,
-            fn(array $grid) => $grid['data']['records_total'] > 0
+            fn (array $grid) => $grid['data']['records_total'] > 0
         );
 
         return $this->render('@Modules/ps_linklist/views/templates/admin/link_block/list.html.twig', [

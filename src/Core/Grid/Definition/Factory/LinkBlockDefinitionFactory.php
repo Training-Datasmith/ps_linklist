@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -36,7 +38,7 @@ use PrestaShop\PrestaShop\Core\Multistore\MultistoreContextCheckerInterface;
  */
 final class LinkBlockDefinitionFactory extends AbstractGridDefinitionFactory
 {
-    const FACTORY_ID = 'link_widget_grid_';
+    public const FACTORY_ID = 'link_widget_grid_';
 
     /**
      * @var MultistoreContextCheckerInterface
