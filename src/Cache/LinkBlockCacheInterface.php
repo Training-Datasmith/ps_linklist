@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,16 +19,15 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Cache;
+namespace Presta_Shop\Module\Link_List\Cache;
 
 /**
  * Interface LinkBlockCacheInterface.
  */
-interface LinkBlockCacheInterface
+interface Link_Block_Cache_Interface
 {
     /**
      * Clear module cache.
      */
-    public function clearModuleCache();
+    public function clear_module_cache();
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,31 +19,24 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Form\Type;
 
-namespace PrestaShop\Module\LinkList\Form\Type;
-
-use PrestaShopBundle\Form\Admin\Type\TranslatorAwareType;
-use Symfony\Component\Form\Extension\Core\Type\TextType;
-use Symfony\Component\Form\FormBuilderInterface;
+use Presta_Shop_Bundle\Form\Admin\Type\Translator_Aware_Type;
+use Symfony\Component\Form\Extension\Core\Type\Text_Type;
+use Symfony\Component\Form\Form_Builder_Interface;
 use Symfony\Component\Validator\Constraints as Assert;
-
-class CustomUrlType extends TranslatorAwareType
+class Custom_Url_Type extends Translator_Aware_Type
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function build_form(Form_Builder_Interface $builder, array $options): void
     {
-        $builder
-            ->add('title', TextType::class, [
-                'label' => $this->trans('Title', 'Modules.Linklist.Admin'),
-                'required' => true,
-            ])
-            ->add('url', TextType::class, [
-                'label' => $this->trans('URL', 'Modules.Linklist.Admin'),
-                'required' => true,
-                // Regex adapted from src/Symfony/Component/Validator/Constraints/UrlValidator.php (symfony 4.4)
-                'constraints' => [new Assert\Regex(['pattern' => '~^
+        $builder->add('title', Text_Type::class, ['label' => $this->trans('Title', 'Modules.Linklist.Admin'), 'required' => true])->add('url', Text_Type::class, [
+            'label' => $this->trans('URL', 'Modules.Linklist.Admin'),
+            'required' => true,
+            // Regex adapted from src/Symfony/Component/Validator/Constraints/UrlValidator.php (symfony 4.4)
+            'constraints' => [new Assert\Regex(['pattern' => '~^
             (
             (http|https)://?                                 # protocol
                 (([\_\.\pL\pN-]+:)?([\_\.\pL\pN-]+)@)?  # basic auth
@@ -62,7 +55,6 @@ class CustomUrlType extends TranslatorAwareType
             (?:\? (?:[\pL\pN\-._\~!$&\'()*+,;=:@/?]|%[0-9A-Fa-f]{2})* )?   # a query (optional)
             (?:\# (?:[\pL\pN\-._\~!$&\'()*+,;=:@/?]|%[0-9A-Fa-f]{2})* )?   # a fragment (optional)
         $~ixu'])],
-            ])
-        ;
+        ]);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,25 +19,23 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Core\Grid\Query;
+namespace Presta_Shop\Module\Link_List\Core\Grid\Query;
 
 use Doctrine\DBAL\Connection;
-use Doctrine\DBAL\Query\QueryBuilder;
-use PrestaShop\PrestaShop\Core\Grid\Query\AbstractDoctrineQueryBuilder;
-use PrestaShop\PrestaShop\Core\Grid\Search\SearchCriteriaInterface;
-
+use Doctrine\DBAL\Query\Query_Builder;
+use Presta_Shop\Presta_Shop\Core\Grid\Query\Abstract_Doctrine_Query_Builder;
+use Presta_Shop\Presta_Shop\Core\Grid\Search\Search_Criteria_Interface;
 /**
  * Class LinkBlockQueryBuilder.
  */
-final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
+final class Link_Block_Query_Builder extends Abstract_Doctrine_Query_Builder
 {
     /**
      * @return QueryBuilder
      */
-    public function getSearchQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
+    public function get_search_query_builder(?Search_Criteria_Interface $search_criteria = null)
     {
-        $qb = $this->getQueryBuilder($searchCriteria->getFilters());
+        $qb = $this->get_query_builder($search_criteria->get_filters());
         $qb->select('
             lb.id_link_block,
             lbl.name AS block_name,
@@ -47,84 +45,45 @@ final class LinkBlockQueryBuilder extends AbstractDoctrineQueryBuilder
             h.description as hook_description,
             lbs.position as position,
             GROUP_CONCAT(s.name SEPARATOR ", ") as shop_name
-            ')
-            ->groupBy('lb.id_link_block')
-            ->orderBy(
-                $searchCriteria->getOrderBy(),
-                $searchCriteria->getOrderWay()
-            )
-        ;
-
-        if ($searchCriteria->getLimit() > 0) {
-            $qb
-                ->setFirstResult($searchCriteria->getOffset())
-                ->setMaxResults($searchCriteria->getLimit())
-            ;
+            ')->group_by('lb.id_link_block')->order_by($search_criteria->get_order_by(), $search_criteria->get_order_way());
+        if ($search_criteria->get_limit() > 0) {
+            $qb->set_first_result($search_criteria->get_offset())->set_max_results($search_criteria->get_limit());
         }
-
         return $qb;
     }
-
     /**
      * @return QueryBuilder
      */
-    public function getCountQueryBuilder(?SearchCriteriaInterface $searchCriteria = null)
+    public function get_count_query_builder(?Search_Criteria_Interface $search_criteria = null)
     {
-        $qb = $this->getQueryBuilder($searchCriteria->getFilters());
+        $qb = $this->get_query_builder($search_criteria->get_filters());
         $qb->select('COUNT(DISTINCT(lb.id_link_block))');
-
         return $qb;
     }
-
     /**
      * Get generic query builder.
      *
      *
      * @return QueryBuilder
      */
-    private function getQueryBuilder(array $filters)
+    private function get_query_builder(array $filters)
     {
-        $qb = $this->connection
-            ->createQueryBuilder()
-            ->from($this->dbPrefix . 'link_block', 'lb')
-            ->innerJoin('lb', $this->dbPrefix . 'link_block_lang', 'lbl', 'lb.id_link_block = lbl.id_link_block')
-            ->leftJoin('lb', $this->dbPrefix . 'link_block_shop', 'lbs', 'lb.id_link_block = lbs.id_link_block')
-            ->leftJoin('lb', $this->dbPrefix . 'hook', 'h', 'lb.id_hook = h.id_hook')
-            ->leftJoin('lb', $this->dbPrefix . 'shop', 's', 's.id_shop = lbs.id_shop');
-
+        $qb = $this->connection->create_query_builder()->from($this->db_prefix . 'link_block', 'lb')->inner_join('lb', $this->db_prefix . 'link_block_lang', 'lbl', 'lb.id_link_block = lbl.id_link_block')->left_join('lb', $this->db_prefix . 'link_block_shop', 'lbs', 'lb.id_link_block = lbs.id_link_block')->left_join('lb', $this->db_prefix . 'hook', 'h', 'lb.id_hook = h.id_hook')->left_join('lb', $this->db_prefix . 'shop', 's', 's.id_shop = lbs.id_shop');
         foreach ($filters as $name => $value) {
             if ('id_lang' === $name) {
-                $qb
-                    ->andWhere("lbl.id_lang = :$name")
-                    ->setParameter($name, $value)
-                ;
-
+                $qb->and_where("lbl.id_lang = :{$name}")->set_parameter($name, $value);
                 continue;
             }
-
             if ('id_hook' === $name) {
-                $qb
-                    ->andWhere("h.id_hook = :$name")
-                    ->setParameter($name, $value)
-                ;
-
+                $qb->and_where("h.id_hook = :{$name}")->set_parameter($name, $value);
                 continue;
             }
-
             if ('id_shop' === $name) {
-                $qb
-                    ->andWhere("lbs.id_shop IN (:$name)")
-                    ->setParameter($name, $value, Connection::PARAM_STR_ARRAY);
-
+                $qb->and_where("lbs.id_shop IN (:{$name})")->set_parameter($name, $value, Connection::PARAM_STR_ARRAY);
                 continue;
             }
-
-            $qb
-                ->andWhere(sprintf('lbl.%s LIKE :%s', $name, $name))
-                ->setParameter($name, '%' . $value . '%')
-            ;
+            $qb->and_where(sprintf('lbl.%s LIKE :%s', $name, $name))->set_parameter($name, '%' . $value . '%');
         }
-
         return $qb;
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,31 +19,27 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Form\Type;
 
-namespace PrestaShop\Module\LinkList\Form\Type;
-
-use PrestaShopBundle\Form\Admin\Type\TranslatableType;
-use Symfony\Component\Form\FormBuilderInterface;
-
+use Presta_Shop_Bundle\Form\Admin\Type\Translatable_Type;
+use Symfony\Component\Form\Form_Builder_Interface;
 /**
  * Class TranslatableUrlType.
  */
-class TranslateCustomUrlType extends TranslatableType
+class Translate_Custom_Url_Type extends Translatable_Type
 {
     /**
      * {@inheritdoc}
      */
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function build_form(Form_Builder_Interface $builder, array $options): void
     {
         foreach ($options['locales'] as $locale) {
-            $localeOptions = $options['options'];
-            $localeOptions['label'] = $locale['iso_code'];
-
-            if (!isset($localeOptions['required'])) {
-                $localeOptions['required'] = false;
+            $locale_options = $options['options'];
+            $locale_options['label'] = $locale['iso_code'];
+            if (!isset($locale_options['required'])) {
+                $locale_options['required'] = false;
             }
-
-            $builder->add($locale['id_lang'], CustomUrlType::class, $localeOptions);
+            $builder->add($locale['id_lang'], Custom_Url_Type::class, $locale_options);
         }
     }
 }

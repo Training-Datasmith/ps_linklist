@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,140 +19,61 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Core\Grid\Definition\Factory;
 
-namespace PrestaShop\Module\LinkList\Core\Grid\Definition\Factory;
-
-use PrestaShop\PrestaShop\Core\Grid\Action\Row\RowActionCollection;
-use PrestaShop\PrestaShop\Core\Grid\Action\Row\Type\LinkRowAction;
-use PrestaShop\PrestaShop\Core\Grid\Action\Row\Type\SubmitRowAction;
-use PrestaShop\PrestaShop\Core\Grid\Column\ColumnCollection;
-use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\ActionColumn;
-use PrestaShop\PrestaShop\Core\Grid\Column\Type\Common\PositionColumn;
-use PrestaShop\PrestaShop\Core\Grid\Column\Type\DataColumn;
-use PrestaShop\PrestaShop\Core\Grid\Definition\Factory\AbstractGridDefinitionFactory;
-use PrestaShop\PrestaShop\Core\Hook\HookDispatcherInterface;
-use PrestaShop\PrestaShop\Core\Multistore\MultistoreContextCheckerInterface;
-
+use Presta_Shop\Presta_Shop\Core\Grid\Action\Row\Row_Action_Collection;
+use Presta_Shop\Presta_Shop\Core\Grid\Action\Row\Type\Link_Row_Action;
+use Presta_Shop\Presta_Shop\Core\Grid\Action\Row\Type\Submit_Row_Action;
+use Presta_Shop\Presta_Shop\Core\Grid\Column\Column_Collection;
+use Presta_Shop\Presta_Shop\Core\Grid\Column\Type\Common\Action_Column;
+use Presta_Shop\Presta_Shop\Core\Grid\Column\Type\Common\Position_Column;
+use Presta_Shop\Presta_Shop\Core\Grid\Column\Type\Data_Column;
+use Presta_Shop\Presta_Shop\Core\Grid\Definition\Factory\Abstract_Grid_Definition_Factory;
+use Presta_Shop\Presta_Shop\Core\Hook\Hook_Dispatcher_Interface;
+use Presta_Shop\Presta_Shop\Core\Multistore\Multistore_Context_Checker_Interface;
 /**
  * Class LinkBlockDefinitionFactory.
  */
-final class LinkBlockDefinitionFactory extends AbstractGridDefinitionFactory
+final class Link_Block_Definition_Factory extends Abstract_Grid_Definition_Factory
 {
     public const FACTORY_ID = 'link_widget_grid_';
-
     /**
      * @var MultistoreContextCheckerInterface
      */
-    private $multistoreContextChecker;
-
+    private $multistore_context_checker;
     /**
      * LinkBlockDefinitionFactory constructor.
      */
-    public function __construct(
-        private array $hook,
-        MultistoreContextCheckerInterface $multistoreContextChecker,
-        HookDispatcherInterface $hookDispatcher
-    ) {
-        parent::__construct($hookDispatcher);
-        $this->multistoreContextChecker = $multistoreContextChecker;
+    public function __construct(private array $hook, Multistore_Context_Checker_Interface $multistore_context_checker, Hook_Dispatcher_Interface $hook_dispatcher)
+    {
+        parent::__construct($hook_dispatcher);
+        $this->multistore_context_checker = $multistore_context_checker;
     }
-
     /**
      * {@inheritdoc}
      */
-    protected function getId()
+    protected function get_id()
     {
         return self::FACTORY_ID . $this->hook['id_hook'];
     }
-
     /**
      * {@inheritdoc}
      */
-    protected function getName()
+    protected function get_name()
     {
         return $this->hook['name'] . ' ' . $this->hook['title'];
     }
-
     /**
      * {@inheritdoc}
      */
-    protected function getColumns()
+    protected function get_columns()
     {
-        $columns = (new ColumnCollection())
-            ->add(
-                (new DataColumn('id_link_block'))
-                    ->setName($this->trans('ID', [], 'Modules.Linklist.Admin'))
-                    ->setOptions([
-                        'field' => 'id_link_block',
-                    ])
-            )
-            ->add(
-                (new DataColumn('block_name'))
-                    ->setName($this->trans('Name of the block', [], 'Modules.Linklist.Admin'))
-                    ->setOptions([
-                        'field' => 'block_name',
-                    ])
-            )
-            ->add(
-                (new ActionColumn('actions'))
-                    ->setOptions([
-                        'actions' => (new RowActionCollection())
-                            ->add(
-                                (new LinkRowAction('edit'))
-                                    ->setIcon('edit')
-                                    ->setOptions([
-                                        'route' => 'admin_link_block_edit',
-                                        'route_param_name' => 'linkBlockId',
-                                        'route_param_field' => 'id_link_block',
-                                    ])
-                            )
-                            ->add(
-                                (new SubmitRowAction('delete'))
-                                    ->setName($this->trans('Delete', [], 'Admin.Actions'))
-                                    ->setIcon('delete')
-                                    ->setOptions([
-                                        'method' => 'POST',
-                                        'route' => 'admin_link_block_delete',
-                                        'route_param_name' => 'linkBlockId',
-                                        'route_param_field' => 'id_link_block',
-                                        'confirm_message' => $this->trans(
-                                            'Delete selected item?',
-                                            [],
-                                            'Admin.Notifications.Warning'
-                                        ),
-                                    ])
-                            ),
-                    ])
-            )
-        ;
-
-        if ($this->multistoreContextChecker->isSingleShopContext()) {
-            $columns->addBefore(
-                'actions',
-                (new PositionColumn('position'))
-                    ->setName($this->trans('Position', [], 'Admin.Global'))
-                    ->setOptions([
-                        'id_field' => 'id_link_block',
-                        'position_field' => 'position',
-                        'update_route' => 'admin_link_block_update_positions',
-                        'update_method' => 'POST',
-                        'record_route_params' => [
-                            'id_hook' => 'hookId',
-                        ],
-                    ])
-            );
+        $columns = (new Column_Collection())->add((new Data_Column('id_link_block'))->set_name($this->trans('ID', [], 'Modules.Linklist.Admin'))->set_options(['field' => 'id_link_block']))->add((new Data_Column('block_name'))->set_name($this->trans('Name of the block', [], 'Modules.Linklist.Admin'))->set_options(['field' => 'block_name']))->add((new Action_Column('actions'))->set_options(['actions' => (new Row_Action_Collection())->add((new Link_Row_Action('edit'))->set_icon('edit')->set_options(['route' => 'admin_link_block_edit', 'route_param_name' => 'linkBlockId', 'route_param_field' => 'id_link_block']))->add((new Submit_Row_Action('delete'))->set_name($this->trans('Delete', [], 'Admin.Actions'))->set_icon('delete')->set_options(['method' => 'POST', 'route' => 'admin_link_block_delete', 'route_param_name' => 'linkBlockId', 'route_param_field' => 'id_link_block', 'confirm_message' => $this->trans('Delete selected item?', [], 'Admin.Notifications.Warning')]))]));
+        if ($this->multistore_context_checker->is_single_shop_context()) {
+            $columns->add_before('actions', (new Position_Column('position'))->set_name($this->trans('Position', [], 'Admin.Global'))->set_options(['id_field' => 'id_link_block', 'position_field' => 'position', 'update_route' => 'admin_link_block_update_positions', 'update_method' => 'POST', 'record_route_params' => ['id_hook' => 'hookId']]));
         } else {
-            $columns->addBefore(
-                'actions',
-                (new DataColumn('shop_name'))
-                    ->setName($this->trans('Shop', [], 'Admin.Global'))
-                    ->setOptions([
-                        'field' => 'shop_name',
-                        'sortable' => false,
-                    ])
-            );
+            $columns->add_before('actions', (new Data_Column('shop_name'))->set_name($this->trans('Shop', [], 'Admin.Global'))->set_options(['field' => 'shop_name', 'sortable' => false]));
         }
-
         return $columns;
     }
 }

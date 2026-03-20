@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,34 +19,25 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
+namespace Presta_Shop\Module\Link_List\Form\Choice_Provider;
 
 /**
  * Class HookChoiceProvider.
  */
-final class HookChoiceProvider extends AbstractDatabaseChoiceProvider
+final class Hook_Choice_Provider extends Abstract_Database_Choice_Provider
 {
     /**
      * @return mixed[]
      */
-    public function getChoices(): array
+    public function get_choices(): array
     {
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select('h.id_hook, h.name')
-            ->from($this->dbPrefix . 'hook', 'h')
-            ->andWhere('h.name LIKE :displayHook')
-            ->setParameter('displayHook', 'display%')
-            ->orderBy('h.name')
-        ;
-
-        $hooks = $qb->execute()->fetchAll();
+        $qb = $this->connection->create_query_builder();
+        $qb->select('h.id_hook, h.name')->from($this->db_prefix . 'hook', 'h')->and_where('h.name LIKE :displayHook')->set_parameter('displayHook', 'display%')->order_by('h.name');
+        $hooks = $qb->execute()->fetch_all();
         $choices = [];
         foreach ($hooks as $hook) {
             $choices[$hook['name']] = $hook['id_hook'];
         }
-
         return $choices;
     }
 }

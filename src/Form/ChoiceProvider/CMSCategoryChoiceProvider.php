@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,36 +19,22 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
+namespace Presta_Shop\Module\Link_List\Form\Choice_Provider;
 
 /**
  * Class CMSCategoryChoiceProvider.
  */
-final class CMSCategoryChoiceProvider extends AbstractDatabaseChoiceProvider
+final class Cms_Category_Choice_Provider extends Abstract_Database_Choice_Provider
 {
-    public function getChoices(): array
+    public function get_choices(): array
     {
-        $qb = $this->connection->createQueryBuilder();
-        $qb
-            ->select('cc.id_cms_category, ccl.name')
-            ->from($this->dbPrefix . 'cms_category', 'cc')
-            ->innerJoin('cc', $this->dbPrefix . 'cms_category_lang', 'ccl', 'cc.id_cms_category = ccl.id_cms_category')
-            ->innerJoin('cc', $this->dbPrefix . 'cms_category_shop', 'ccs', 'cc.id_cms_category = ccs.id_cms_category')
-            ->andWhere('cc.active = 1')
-            ->andWhere('ccl.id_lang = :idLang')
-            ->andWhere('ccs.id_shop IN (:shopIds)')
-            ->setParameter('idLang', $this->idLang)
-            ->setParameter('shopIds', implode(',', $this->shopIds))
-            ->orderBy('ccl.name')
-        ;
-
-        $categories = $qb->execute()->fetchAll();
+        $qb = $this->connection->create_query_builder();
+        $qb->select('cc.id_cms_category, ccl.name')->from($this->db_prefix . 'cms_category', 'cc')->inner_join('cc', $this->db_prefix . 'cms_category_lang', 'ccl', 'cc.id_cms_category = ccl.id_cms_category')->inner_join('cc', $this->db_prefix . 'cms_category_shop', 'ccs', 'cc.id_cms_category = ccs.id_cms_category')->and_where('cc.active = 1')->and_where('ccl.id_lang = :idLang')->and_where('ccs.id_shop IN (:shopIds)')->set_parameter('idLang', $this->id_lang)->set_parameter('shopIds', implode(',', $this->shop_ids))->order_by('ccl.name');
+        $categories = $qb->execute()->fetch_all();
         $choices = [];
         foreach ($categories as $category) {
             $choices[$category['name']] = $category['id_cms_category'];
         }
-
         return $choices;
     }
 }

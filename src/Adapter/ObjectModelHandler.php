@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,21 +19,15 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Adapter;
 
-namespace PrestaShop\Module\LinkList\Adapter;
-
-use PrestaShop\Module\LinkList\Model\LinkBlock;
-use PrestaShop\PrestaShop\Adapter\Domain\AbstractObjectModelHandler;
-
-class ObjectModelHandler extends AbstractObjectModelHandler
+use Presta_Shop\Module\Link_List\Model\Link_Block;
+use Presta_Shop\Presta_Shop\Adapter\Domain\Abstract_Object_Model_Handler;
+class Object_Model_Handler extends Abstract_Object_Model_Handler
 {
-    public function handleMultiShopAssociation(
-        int $linkBlockId,
-        array $associatedShops,
-        bool $forceAssociate = false
-    ): void {
-        $objectModel = new LinkBlock($linkBlockId);
-
+    public function handle_multi_shop_association(int $link_block_id, array $associated_shops, bool $force_associate = false): void
+    {
+        $object_model = new Link_Block($link_block_id);
         /*
          * Why we want to force association?
          * It's easier to work on multi-store tables even when feature is disabled
@@ -42,12 +36,10 @@ class ObjectModelHandler extends AbstractObjectModelHandler
          *
          * @todo: this should be part of AbstractObjectModelHandler
          */
-        if ($forceAssociate) {
-            $objectModel->associateTo($associatedShops);
-
+        if ($force_associate) {
+            $object_model->associate_to($associated_shops);
             return;
         }
-
-        $this->associateWithShops($objectModel, $associatedShops);
+        $this->associate_with_shops($object_model, $associated_shops);
     }
 }

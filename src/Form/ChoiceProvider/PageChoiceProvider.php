@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,17 +19,15 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
+namespace Presta_Shop\Module\Link_List\Form\Choice_Provider;
 
 use Doctrine\DBAL\Connection;
-use PrestaShop\PrestaShop\Core\Foundation\Database\EntityNotFoundException;
+use Presta_Shop\Presta_Shop\Core\Foundation\Database\Entity_Not_Found_Exception;
 use Tools;
-
 /**
  * Class PageChoiceProvider.
  */
-final class PageChoiceProvider extends AbstractDatabaseChoiceProvider
+final class Page_Choice_Provider extends Abstract_Database_Choice_Provider
 {
     /**
      * PageChoiceProvider constructor.
@@ -37,42 +35,24 @@ final class PageChoiceProvider extends AbstractDatabaseChoiceProvider
      * @param string $dbPrefix
      * @param int $idLang
      */
-    public function __construct(
-        Connection $connection,
-        $dbPrefix,
-        $idLang,
-        array $shopIds,
-        private readonly array $pageNames
-    ) {
-        parent::__construct($connection, $dbPrefix, $idLang, $shopIds);
+    public function __construct(Connection $connection, $db_prefix, $id_lang, array $shop_ids, private readonly array $page_names)
+    {
+        parent::__construct($connection, $db_prefix, $id_lang, $shop_ids);
     }
-
     /**
      * @throws EntityNotFoundException
      */
-    public function getChoices(): array
+    public function get_choices(): array
     {
         $choices = [];
-        foreach ($this->pageNames as $pageName) {
-            $qb = $this->connection->createQueryBuilder();
-            $qb
-                ->select('m.id_meta, ml.title')
-                ->from($this->dbPrefix . 'meta', 'm')
-                ->leftJoin('m', $this->dbPrefix . 'meta_lang', 'ml', 'm.id_meta = ml.id_meta')
-                ->andWhere($qb->expr()->orX('m.page = :page', 'm.page = :pageSlug'))
-                ->andWhere('ml.id_lang = :idLang')
-                ->andWhere('ml.id_shop IN (:shopIds)')
-                ->setParameter('idLang', $this->idLang)
-                ->setParameter('shopIds', implode(',', $this->shopIds))
-                ->setParameter('page', $pageName)
-                ->setParameter('pageSlug', str_replace('-', '', Tools::strtolower($pageName)))
-            ;
-            $meta = $qb->execute()->fetchAll();
+        foreach ($this->page_names as $page_name) {
+            $qb = $this->connection->create_query_builder();
+            $qb->select('m.id_meta, ml.title')->from($this->db_prefix . 'meta', 'm')->left_join('m', $this->db_prefix . 'meta_lang', 'ml', 'm.id_meta = ml.id_meta')->and_where($qb->expr()->or_x('m.page = :page', 'm.page = :pageSlug'))->and_where('ml.id_lang = :idLang')->and_where('ml.id_shop IN (:shopIds)')->set_parameter('idLang', $this->id_lang)->set_parameter('shopIds', implode(',', $this->shop_ids))->set_parameter('page', $page_name)->set_parameter('pageSlug', str_replace('-', '', Tools::strtolower($page_name)));
+            $meta = $qb->execute()->fetch_all();
             if (!empty($meta)) {
-                $choices[$meta[0]['title']] = $pageName;
+                $choices[$meta[0]['title']] = $page_name;
             }
         }
-
         return $choices;
     }
 }

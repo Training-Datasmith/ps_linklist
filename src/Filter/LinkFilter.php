@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,36 +19,31 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Filter;
 
-namespace PrestaShop\Module\LinkList\Filter;
-
-class LinkFilter
+class Link_Filter
 {
     /**
      * @var RouteFilterInterface[]
      */
-    private array $routeFilters = [];
-
-    public function __construct(array $routeFilters = [])
+    private array $route_filters = [];
+    public function __construct(array $route_filters = [])
     {
-        $this->addRouteFilter(...$routeFilters);
+        $this->add_route_filter(...$route_filters);
     }
-
-    public function addRouteFilter(RouteFilterInterface ...$routeFilters): void
+    public function add_route_filter(Route_Filter_Interface ...$route_filters): void
     {
-        foreach ($routeFilters as $routeFilter) {
-            $this->routeFilters[] = $routeFilter;
+        foreach ($route_filters as $route_filter) {
+            $this->route_filters[] = $route_filter;
         }
     }
-
-    public function isRouteEnabled(string $routeId): bool
+    public function is_route_enabled(string $route_id): bool
     {
-        foreach ($this->routeFilters as $filter) {
-            if ($filter->supports($routeId) && !$filter->isRouteEnabled($routeId)) {
+        foreach ($this->route_filters as $filter) {
+            if ($filter->supports($route_id) && !$filter->is_route_enabled($route_id)) {
                 return false;
             }
         }
-
         return true;
     }
 }

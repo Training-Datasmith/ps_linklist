@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,28 +19,19 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+namespace Presta_Shop\Module\Link_List\Core\Search\Filters;
 
-namespace PrestaShop\Module\LinkList\Core\Search\Filters;
-
-use PrestaShop\PrestaShop\Core\Search\Filters;
-
+use Presta_Shop\Presta_Shop\Core\Search\Filters;
 /**
  * Class LinkBlockFilters.
  */
-final class LinkBlockFilters extends Filters
+final class Link_Block_Filters extends Filters
 {
     /**
      * {@inheritdoc}
      */
-    public static function getDefaults()
+    public static function get_defaults()
     {
-        return [
-            'id_shop' => null,
-            'limit' => 0,
-            'offset' => 0,
-            'orderBy' => 'position',
-            'sortOrder' => 'asc',
-            'filters' => [],
-        ];
+        return ['id_shop' => null, 'limit' => 0, 'offset' => 0, 'orderBy' => 'position', 'sortOrder' => 'asc', 'filters' => []];
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,35 +19,31 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
+namespace Presta_Shop\Module\Link_List\Form\Choice_Provider;
 
 use Doctrine\DBAL\Connection;
-use PrestaShop\PrestaShop\Core\Form\FormChoiceProviderInterface;
-
+use Presta_Shop\Presta_Shop\Core\Form\Form_Choice_Provider_Interface;
 /**
  * Class AbstractDatabaseChoiceProvider.
  */
-abstract class AbstractDatabaseChoiceProvider implements FormChoiceProviderInterface
+abstract class Abstract_Database_Choice_Provider implements Form_Choice_Provider_Interface
 {
     /**
      * @var Connection
      */
     protected $connection;
-
     /**
      * AbstractDatabaseChoiceProvider constructor.
      *
      * @param string $dbPrefix
      * @param int|null $idLang
      */
-    public function __construct(Connection $connection, protected $dbPrefix, protected $idLang = null, protected ?array $shopIds = null)
+    public function __construct(Connection $connection, protected $db_prefix, protected $id_lang = null, protected ?array $shop_ids = null)
     {
         $this->connection = $connection;
     }
-
     /**
      * {@inheritdoc}
      */
-    abstract public function getChoices();
+    abstract public function get_choices();
 }

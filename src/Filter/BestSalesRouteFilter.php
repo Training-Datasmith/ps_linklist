@@ -1,7 +1,6 @@
 <?php
 
-declare(strict_types=1);
-
+declare (strict_types=1);
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,19 +19,16 @@ declare(strict_types=1);
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-namespace PrestaShop\Module\LinkList\Filter;
+namespace Presta_Shop\Module\Link_List\Filter;
 
 use Configuration;
-
-class BestSalesRouteFilter implements RouteFilterInterface
+class Best_Sales_Route_Filter implements Route_Filter_Interface
 {
-    public function supports(string $routeId): bool
+    public function supports(string $route_id): bool
     {
-        return 'best-sales' === $routeId;
+        return 'best-sales' === $route_id;
     }
-
-    public function isRouteEnabled(string $routeId): bool
+    public function is_route_enabled(string $route_id): bool
     {
         return (bool) Configuration::get('PS_DISPLAY_BEST_SELLERS');
     }
