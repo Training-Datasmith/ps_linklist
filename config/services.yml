@@ -2,7 +2,7 @@ services:
   _defaults:
     public: true
 
-  PrestaShop\Module\LinkList\Repository\LinkBlockRepository:
+  Presta_Shop\Module\Link_List\Repository\Link_Block_Repository:
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -13,7 +13,7 @@ services:
       $objectModelHandler: '@prestashop.module.link_block.adapter.object_model_handler'
 
   prestashop.module.link_block.repository:
-    alias: PrestaShop\Module\LinkList\Repository\LinkBlockRepository
+    alias: Presta_Shop\Module\Link_List\Repository\Link_Block_Repository
 
   prestashop.module.link_block.adapter.object_model_handler:
-    class: 'PrestaShop\Module\LinkList\Adapter\ObjectModelHandler'
+    class: 'Presta_Shop\Module\Link_List\Adapter\Object_Model_Handler'

@@ -4,32 +4,32 @@ services:
     autowire: true
     autoconfigure: true
 
-  PrestaShop\Module\LinkList\Controller\Admin\Improve\Design\LinkBlockController: ~
+  Presta_Shop\Module\Link_List\Controller\Admin\Improve\Design\Link_Block_Controller: ~
 
   # Link block form handler
   prestashop.module.link_block.form_handler:
-    class: 'PrestaShop\PrestaShop\Core\Form\FormHandler'
+    class: 'Presta_Shop\Presta_Shop\Core\Form\Form_Handler'
     arguments:
       $formBuilder: '@=service("form.factory").createBuilder()'
       $hookDispatcher: '@prestashop.core.hook.dispatcher'
-      $formDataProvider: '@PrestaShop\Module\LinkList\Form\LinkBlockFormDataProvider'
+      $formDataProvider: '@Presta_Shop\Module\Link_List\Form\Link_Block_Form_Data_Provider'
       $formTypes:
-        'link_block': 'PrestaShop\Module\LinkList\Form\Type\LinkBlockType'
+        'link_block': 'Presta_Shop\Module\Link_List\Form\Type\Link_Block_Type'
       $hookName: 'AdminLinkWidget'
 
   # Link block form data provider
-  PrestaShop\Module\LinkList\Form\LinkBlockFormDataProvider:
+  Presta_Shop\Module\Link_List\Form\Link_Block_Form_Data_Provider:
     arguments:
-      $repository: '@PrestaShop\Module\LinkList\Repository\LinkBlockRepository'
-      $cache: '@PrestaShop\Module\LinkList\Cache\LegacyLinkBlockCache'
+      $repository: '@Presta_Shop\Module\Link_List\Repository\Link_Block_Repository'
+      $cache: '@Presta_Shop\Module\Link_List\Cache\Legacy_Link_Block_Cache'
       $languages: '@=service("prestashop.adapter.legacy.context").getLanguages(false, service("prestashop.adapter.shop.context").getContextShopID())'
       $shopContext: '@prestashop.adapter.shop.context'
       $configuration: '@prestashop.adapter.legacy.configuration'
 
-  PrestaShop\Module\LinkList\Cache\LegacyLinkBlockCache: ~
+  Presta_Shop\Module\Link_List\Cache\Legacy_Link_Block_Cache: ~
 
   # Form types
-  PrestaShop\Module\LinkList\Form\Type\LinkBlockType:
+  Presta_Shop\Module\Link_List\Form\Type\Link_Block_Type:
     parent: 'form.type.translatable.aware'
     arguments:
       $hookChoices: '@=service("prestashop.module.link_block.choice_provider.hook").getChoices()'
@@ -41,12 +41,12 @@ services:
     tags:
       - { name: form.type }
 
-  PrestaShop\Module\LinkList\Form\Type\CustomUrlType:
+  Presta_Shop\Module\Link_List\Form\Type\Custom_Url_Type:
     parent: 'form.type.translatable.aware'
     tags:
       - { name: form.type }
 
-  PrestaShop\Module\LinkList\Form\Type\TranslateCustomUrlType:
+  Presta_Shop\Module\Link_List\Form\Type\Translate_Custom_Url_Type:
     parent: 'form.type.translatable.aware'
     public: true
     arguments:
@@ -60,7 +60,7 @@ services:
 
   # Grid data query builder
   prestashop.module.link_block.grid.query_builder:
-    class: PrestaShop\Module\LinkList\Core\Grid\Query\LinkBlockQueryBuilder
+    class: Presta_Shop\Module\Link_List\Core\Grid\Query\Link_Block_Query_Builder
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -75,7 +75,7 @@ services:
       $gridId: 'link_block'
 
   # Link block grid Factory
-  PrestaShop\Module\LinkList\Core\Grid\LinkBlockGridFactory:
+  Presta_Shop\Module\Link_List\Core\Grid\Link_Block_Grid_Factory:
     arguments:
       $translator: '@translator'
       $hookDispatcher: '@prestashop.core.hook.dispatcher'
@@ -85,13 +85,13 @@ services:
 
   # Form choices providers
   prestashop.module.link_block.choice_provider.hook:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\HookChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\Hook_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
 
   prestashop.module.link_block.choice_provider.cms_category:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\CMSCategoryChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\CMS_Category_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -99,7 +99,7 @@ services:
       $shopIds: '@=service("prestashop.adapter.shop.context").getContextListShopID()'
 
   prestashop.module.link_block.choice_provider.category:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\CategoryChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\Category_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -107,7 +107,7 @@ services:
       $shopIds: '@=service("prestashop.adapter.shop.context").getContextListShopID()'
 
   prestashop.module.link_block.choice_provider.cms_page:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\CMSPageChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\CMS_Page_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -116,7 +116,7 @@ services:
       $shopIds: '@=service("prestashop.adapter.shop.context").getContextListShopID()'
 
   prestashop.module.link_block.choice_provider.product_page:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\PageChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\Page_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
@@ -128,7 +128,7 @@ services:
         - 'best-sales'
 
   prestashop.module.link_block.choice_provider.static_page:
-    class: PrestaShop\Module\LinkList\Form\ChoiceProvider\PageChoiceProvider
+    class: Presta_Shop\Module\Link_List\Form\Choice_Provider\Page_Choice_Provider
     arguments:
       $connection: '@doctrine.dbal.default_connection'
       $dbPrefix: '%database_prefix%'
