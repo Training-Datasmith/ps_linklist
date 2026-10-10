@@ -61,7 +61,7 @@ function writeComposerProject(string $workRoot): string
         'require' => [
             'doctrine/dbal' => '3.9.3',
             'doctrine/deprecations' => '1.1.4',
-            'symfony/yaml' => '6.4.21',
+            'symfony/yaml' => '6.4.40',
             'symfony/translation' => '6.4.21',
         ],
         'autoload' => [
@@ -71,9 +71,6 @@ function writeComposerProject(string $workRoot): string
         ],
         'config' => [
             'sort-packages' => true,
-            'audit' => [
-                'block-insecure' => false,
-            ],
         ],
     ];
     file_put_contents($projectDir . '/composer.json', json_encode($composerJson, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
@@ -181,12 +178,14 @@ function runPhpUnit(
         'TEST_MYSQL_USER=root',
         'TEST_MYSQL_PASSWORD=root',
         'TEST_MYSQL_DATABASE=linklist_test',
-        'PHPUNIT_CACHE_DIR=/phpunit-cache',
         'TEST_PHP_BINARY=php',
-        'TEST_SUITE_METHOD_COUNT=26',
     ];
     $phpunitArgs = array_merge(
-        ['-c', '/module/tests/phpunit.xml.dist', '--log-junit', '/results/' . $junitFile],
+        [
+            '-c', '/module/tests/phpunit.xml.dist',
+            '--cache-directory=/phpunit-cache',
+            '--log-junit', '/results/' . $junitFile,
+        ],
         $extraArgs
     );
     $escapedArgs = implode(' ', array_map('escapeshellarg', $phpunitArgs));
@@ -198,7 +197,7 @@ function runPhpUnit(
 
     $dockerArgs = [
         'run', '--rm', '--network', 'host',
-        '-v', $moduleRoot . ':/module',
+        '-v', $moduleRoot . ':/module:ro',
         '-v', $phpunitPhar . ':/phpunit.phar:ro',
         '-v', $vendorDir . ':/test-vendor:ro',
         '-v', $cacheDir . ':/phpunit-cache',
@@ -210,8 +209,11 @@ function runPhpUnit(
     if ($code !== 0) {
         [$code, $output] = runProcess('sudo docker ' . implode(' ', array_map('escapeshellarg', $dockerArgs)));
     }
-    if ($code !== 0) {
+    if ($code !== 0 || preg_match('/\bWarning:/i', $output)) {
         fwrite(STDERR, $output . "\n");
+        if ($code === 0) {
+            $code = 1;
+        }
     }
 
     return $code;
@@ -280,6 +282,11 @@ function proveFixReverts(
 
 ensureLayout($workRoot, $vendorDir, $cacheDir, $resultsDir, $gnupgHome);
 
+$cacheArtifact = $moduleRoot . '/tests/${PHPUNIT_CACHE_DIR}';
+if (is_dir($cacheArtifact)) {
+    runProcess('sudo rm -rf ' . escapeshellarg($cacheArtifact));
+}
+
 docker(['pull', PHP_IMAGE]);
 docker(['pull', MYSQL_IMAGE]);
 docker(['pull', COMPOSER_IMAGE]);
@@ -297,6 +304,17 @@ docker([
     COMPOSER_IMAGE,
     'composer', 'install', '--no-interaction', '--no-progress', '--working-dir=/app',
 ]);
+
+$auditOutput = docker([
+    'run', '--rm',
+    '-v', $projectDir . ':/app',
+    '-v', $vendorDir . ':/app/vendor',
+    COMPOSER_IMAGE,
+    'composer', 'audit', '--no-interaction', '--working-dir=/app', '--format=plain', '--abandoned=ignore',
+]);
+if (!str_contains($auditOutput, 'No security vulnerability advisories found')) {
+    throw new RuntimeException("composer audit did not report a clean result:\n$auditOutput");
+}
 
 $vendorAutoload = $vendorDir . '/autoload.php';
 if (!is_file($vendorAutoload)) {
@@ -330,6 +348,16 @@ if ($shuffleCode !== 0) {
 proveFixReverts($moduleRoot, $phpunitPhar, $vendorDir, $mysql, $cacheDir, $resultsDir);
 
 docker(['rm', '-f', $mysql['container']]);
+
+$cacheArtifact = $moduleRoot . '/tests/${PHPUNIT_CACHE_DIR}';
+if (is_dir($cacheArtifact)) {
+    runProcess('rm -rf ' . escapeshellarg($cacheArtifact));
+}
+
+[$gitStatusCode, $gitStatus] = runProcess('git -C ' . escapeshellarg($moduleRoot) . ' status --porcelain');
+if ($gitStatusCode !== 0 || $gitStatus !== '') {
+    throw new RuntimeException("Repository not clean after suite:\n$gitStatus");
+}
 
 fwrite(STDOUT, "Suite completed successfully\n");
 exit(0);

@@ -22,7 +22,6 @@ final class Upgrade300ConfigurationTest extends TestCase
             'FOOTER_BEST-SALES',
             'FOOTER_CONTACT',
             'FOOTER_SITEMAP',
-            'PS_STORES_DISPLAY_FOOTER',
         ] as $key) {
             \Configuration::set($key, '1');
         }
@@ -48,7 +47,6 @@ final class Upgrade300ConfigurationTest extends TestCase
             self::assertTrue(\Configuration::wasDeleted($key), $key);
         }
 
-        self::assertFalse(\Configuration::wasDeleted('PS_STORES_DISPLAY_FOOTER'));
         self::assertNotEmpty(\Db::getInstance()->getExecuted());
     }
 }

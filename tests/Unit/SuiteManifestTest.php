@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace PrestaShop\Module\LinkList\Tests\Unit;
 
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
+use ReflectionMethod;
 
 final class SuiteManifestTest extends TestCase
 {
@@ -40,6 +42,35 @@ final class SuiteManifestTest extends TestCase
 
     public function testManifestTestCountMatchesPhpUnitInventory(): void
     {
-        self::assertSame(self::EXPECTED_TEST_COUNT, (int) (getenv('TEST_SUITE_METHOD_COUNT') ?: 0));
+        self::assertSame(self::EXPECTED_TEST_COUNT, self::countExecutableTests());
+    }
+
+    private static function countExecutableTests(): int
+    {
+        $total = 0;
+        foreach (self::EXPECTED_FILES as $file) {
+            $class = __NAMESPACE__ . '\\' . substr($file, 0, -4);
+            $ref = new ReflectionClass($class);
+            foreach ($ref->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+                if (!str_starts_with($method->getName(), 'test')) {
+                    continue;
+                }
+                $doc = $method->getDocComment() ?: '';
+                if (preg_match('/@dataProvider\s+(\S+)/', $doc, $matches)) {
+                    $provider = $matches[1];
+                    if (str_contains($provider, '::')) {
+                        $rows = call_user_func($provider);
+                    } else {
+                        $rows = $class::$provider();
+                    }
+                    $total += count($rows);
+
+                    continue;
+                }
+                ++$total;
+            }
+        }
+
+        return $total;
     }
 }
