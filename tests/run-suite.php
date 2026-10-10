@@ -235,9 +235,16 @@ function exportModuleSnapshot(string $moduleRoot, string $exportDir): void
         runProcess('rm -rf ' . escapeshellarg($exportDir));
     }
     ensureLayout($exportDir);
-    [$code, $output] = runProcess(
-        'tar -C ' . escapeshellarg($moduleRoot) . ' --exclude=.git -cf - . | tar -xf - -C ' . escapeshellarg($exportDir)
-    );
+    [$statusCode, $status] = runProcess('git -C ' . escapeshellarg($moduleRoot) . ' status --porcelain');
+    if ($statusCode === 0 && $status === '') {
+        [$code, $output] = runProcess(
+            'git -C ' . escapeshellarg($moduleRoot) . ' archive HEAD | tar -xf - -C ' . escapeshellarg($exportDir)
+        );
+    } else {
+        [$code, $output] = runProcess(
+            'tar -C ' . escapeshellarg($moduleRoot) . ' --exclude=.git -cf - . | tar -xf - -C ' . escapeshellarg($exportDir)
+        );
+    }
     if ($code !== 0) {
         throw new RuntimeException("Module snapshot export failed:\n$output");
     }
