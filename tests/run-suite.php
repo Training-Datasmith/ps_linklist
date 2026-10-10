@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+if (PHP_SAPI === 'cli' && realpath((string) ($_SERVER['SCRIPT_FILENAME'] ?? '')) !== realpath(__FILE__)) {
+    return;
+}
+
 $moduleRoot = dirname(__DIR__);
 $workRoot = sys_get_temp_dir() . '/ps-linklist-suite-' . getmypid();
 $vendorDir = $workRoot . '/composer-vendor';
