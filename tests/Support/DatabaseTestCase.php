@@ -180,9 +180,9 @@ abstract class DatabaseTestCase extends TestCase
         $connection->executeStatement('DELETE FROM ps_cms_category_shop');
         $connection->executeStatement('DELETE FROM ps_cms_category_lang');
         $connection->executeStatement('DELETE FROM ps_cms_category');
-        $connection->executeStatement('INSERT INTO ps_cms_category (id_cms_category, active) VALUES (5, 1)');
-        $connection->executeStatement('INSERT INTO ps_cms_category_lang (id_cms_category, id_lang, name) VALUES (5, 1, "CMS root")');
-        $connection->executeStatement('INSERT INTO ps_cms_category_shop (id_cms_category, id_shop) VALUES (5, 1), (5, 2)');
+        $connection->executeStatement('INSERT INTO ps_cms_category (id_cms_category, active) VALUES (5, 1), (6, 1)');
+        $connection->executeStatement('INSERT INTO ps_cms_category_lang (id_cms_category, id_lang, name) VALUES (5, 1, "CMS root"), (6, 1, "CMS shop2 only")');
+        $connection->executeStatement('INSERT INTO ps_cms_category_shop (id_cms_category, id_shop) VALUES (5, 1), (6, 2)');
 
         $connection->executeStatement('DELETE FROM ps_cms_shop');
         $connection->executeStatement('DELETE FROM ps_cms_lang');

@@ -32,4 +32,19 @@ final class CmsPageChoiceProviderShopFilterTest extends DatabaseTestCase
         self::assertArrayHasKey('CMS root', $choices);
         self::assertContains(20, $choices['CMS root']);
     }
+
+    public function testCmsPageReturnedWhenShopIdsIncludeMultipleShops(): void
+    {
+        $provider = new CMSPageChoiceProvider(
+            $this->connection,
+            _DB_PREFIX_,
+            ['CMS root' => 5],
+            1,
+            [1, 2]
+        );
+        $choices = $provider->getChoices();
+
+        self::assertArrayHasKey('CMS root', $choices);
+        self::assertContains(20, $choices['CMS root']);
+    }
 }

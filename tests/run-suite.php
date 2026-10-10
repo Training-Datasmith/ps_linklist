@@ -219,68 +219,201 @@ function runPhpUnit(
     return $code;
 }
 
+function loadOriginDevFile(string $moduleRoot, string $path): string
+{
+    $legacy = shell_exec('git -C ' . escapeshellarg($moduleRoot) . ' show origin/dev:' . escapeshellarg($path));
+    if (!is_string($legacy) || $legacy === '') {
+        throw new RuntimeException("Cannot load origin/dev version of $path");
+    }
+
+    return $legacy;
+}
+
+function exportModuleSnapshot(string $moduleRoot, string $exportDir): void
+{
+    if (is_dir($exportDir)) {
+        runProcess('rm -rf ' . escapeshellarg($exportDir));
+    }
+    ensureLayout($exportDir);
+    [$code, $output] = runProcess(
+        'tar -C ' . escapeshellarg($moduleRoot) . ' --exclude=.git -cf - . | tar -xf - -C ' . escapeshellarg($exportDir)
+    );
+    if ($code !== 0) {
+        throw new RuntimeException("Module snapshot export failed:\n$output");
+    }
+}
+
+function applyProveMutation(string $exportDir, string $mutationId, string $moduleRoot): void
+{
+    switch ($mutationId) {
+        case '5.2-category':
+            $path = 'src/Form/ChoiceProvider/CategoryChoiceProvider.php';
+            file_put_contents($exportDir . '/' . $path, loadOriginDevFile($moduleRoot, $path));
+            break;
+        case '5.2-cms-category':
+            $path = 'src/Form/ChoiceProvider/CMSCategoryChoiceProvider.php';
+            file_put_contents($exportDir . '/' . $path, loadOriginDevFile($moduleRoot, $path));
+            break;
+        case '5.2-cms-page':
+            $path = 'src/Form/ChoiceProvider/CMSPageChoiceProvider.php';
+            file_put_contents($exportDir . '/' . $path, loadOriginDevFile($moduleRoot, $path));
+            break;
+        case '5.2-page':
+            $path = 'src/Form/ChoiceProvider/PageChoiceProvider.php';
+            file_put_contents($exportDir . '/' . $path, loadOriginDevFile($moduleRoot, $path));
+            break;
+        case '5.3-rollback':
+            $path = $exportDir . '/src/Repository/LinkBlockRepository.php';
+            $contents = file_get_contents($path);
+            $contents = str_replace(
+                "            if (\$this->connection->isTransactionActive()) {\n                \$this->connection->rollBack();\n            }\n\n",
+                '',
+                $contents
+            );
+            file_put_contents($path, $contents);
+            break;
+        case '5.3-message':
+            $path = $exportDir . '/src/Repository/LinkBlockRepository.php';
+            $contents = file_get_contents($path);
+            $contents = str_replace(
+                "throw new DatabaseException(sprintf('Could not update #%d', (int) \$position['rowId']), 0, \$e);",
+                "throw new DatabaseException('Could not update #%i');",
+                $contents
+            );
+            file_put_contents($path, $contents);
+            break;
+        case '5.4-boundary':
+            $path = $exportDir . '/src/Presenter/LinkBlockPresenter.php';
+            $contents = file_get_contents($path);
+            $contents = str_replace(
+                ". '(?=[/:?#]|$)' . preg_quote(\$basePath, '~')",
+                ". preg_quote(\$basePath, '~')",
+                $contents
+            );
+            file_put_contents($path, $contents);
+            break;
+        case '5.4-case':
+            $path = $exportDir . '/src/Presenter/LinkBlockPresenter.php';
+            $contents = file_get_contents($path);
+            $contents = str_replace(
+                "\$baseLink = rtrim(Tools::strtolower(preg_replace('#^(http)s?://#', '', \$this->link->getBaseLink())), '/');",
+                "\$baseLink = rtrim(preg_replace('#^(http)s?://#', '', \$this->link->getBaseLink()), '/');",
+                $contents
+            );
+            file_put_contents($path, $contents);
+            break;
+        default:
+            throw new RuntimeException("Unknown prove mutation: $mutationId");
+    }
+}
+
+function junitXmlAttributeValue(string $value): string
+{
+    return htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8');
+}
+
+function assertProveJUnitResult(string $junitFile, string $testCaseName): void
+{
+    if (!is_file($junitFile)) {
+        throw new RuntimeException("Missing JUnit output: $junitFile");
+    }
+    $xml = file_get_contents($junitFile);
+    if ($xml === false || $xml === '') {
+        throw new RuntimeException("Invalid JUnit XML: $junitFile");
+    }
+    if (!preg_match('/\berrors="(\d+)"/', $xml, $errorsMatch) || (int) $errorsMatch[1] !== 0) {
+        throw new RuntimeException("Proof run reported JUnit errors in $junitFile");
+    }
+    $encodedName = junitXmlAttributeValue($testCaseName);
+    $pattern = '/<testcase\b[^>]*\bname="' . preg_quote($encodedName, '/') . '"[^>]*>.*?<\/testcase>/s';
+    if (!preg_match($pattern, $xml, $testcaseMatch)) {
+        throw new RuntimeException("JUnit did not contain testcase named \"$testCaseName\" in $junitFile");
+    }
+    if (!preg_match('/<(?:failure|error)\b/', $testcaseMatch[0])) {
+        throw new RuntimeException("Expected failing testcase \"$testCaseName\" in $junitFile");
+    }
+}
+
 function proveFixReverts(
     string $moduleRoot,
     string $phpunitPhar,
     string $vendorDir,
     array $mysql,
     string $cacheDir,
-    string $resultsDir
+    string $resultsDir,
+    string $exportRoot
 ): void {
     $cases = [
         [
-            'paths' => [
-                'src/Form/ChoiceProvider/CategoryChoiceProvider.php',
-                'src/Form/ChoiceProvider/CMSCategoryChoiceProvider.php',
-                'src/Form/ChoiceProvider/CMSPageChoiceProvider.php',
-                'src/Form/ChoiceProvider/PageChoiceProvider.php',
-            ],
-            'filter' => 'CategoryChoiceProviderShopFilterTest::testShopIdsAreBoundAsIntegersNotSqlInjection',
+            'id' => '5.2-category',
+            'filter' => 'CategoryChoiceProviderShopFilterTest::testShopFilterReturnsCategoriesForMultipleRequestedShops',
+            'junitTestCase' => 'testShopFilterReturnsCategoriesForMultipleRequestedShops',
         ],
         [
-            'paths' => ['src/Repository/LinkBlockRepository.php'],
-            'filter' => 'LinkBlockRepositoryUpdatePositionsTest',
+            'id' => '5.2-cms-category',
+            'filter' => 'CmsCategoryChoiceProviderTest::testReturnsCategoriesForMultipleRequestedShops',
+            'junitTestCase' => 'testReturnsCategoriesForMultipleRequestedShops',
         ],
         [
-            'paths' => ['src/Presenter/LinkBlockPresenter.php'],
+            'id' => '5.2-cms-page',
+            'filter' => 'CmsPageChoiceProviderShopFilterTest::testCmsPageReturnedWhenShopIdsIncludeMultipleShops',
+            'junitTestCase' => 'testCmsPageReturnedWhenShopIdsIncludeMultipleShops',
+        ],
+        [
+            'id' => '5.2-page',
+            'filter' => 'PageChoiceProviderShopFilterTest::testMetaPageResolvedWhenShopIdsIncludeMultipleShops',
+            'junitTestCase' => 'testMetaPageResolvedWhenShopIdsIncludeMultipleShops',
+        ],
+        [
+            'id' => '5.3-rollback',
+            'filter' => 'LinkBlockRepositoryUpdatePositionsTest::testUpdatePositionsRollsBackOnFailure',
+            'junitTestCase' => 'testUpdatePositionsRollsBackOnFailure',
+        ],
+        [
+            'id' => '5.3-message',
+            'filter' => 'LinkBlockRepositoryUpdatePositionsTest::testUpdatePositionsRollsBackOnFailure',
+            'junitTestCase' => 'testUpdatePositionsRollsBackOnFailure',
+        ],
+        [
+            'id' => '5.4-boundary',
+            'filter' => 'LinkBlockPresenterExternalLinkTest::testIsExternalLink with data set "host prefix attack"',
+            'junitTestCase' => 'testIsExternalLink with data set "host prefix attack"',
+        ],
+        [
+            'id' => '5.4-case',
             'filter' => 'LinkBlockPresenterExternalLinkTest::testIsExternalLink with data set "internal when base host casing differs"',
+            'junitTestCase' => 'testIsExternalLink with data set "internal when base host casing differs"',
         ],
     ];
 
     foreach ($cases as $case) {
-        $backups = [];
-        foreach ($case['paths'] as $path) {
-            $full = $moduleRoot . '/' . $path;
-            $backups[$path] = file_get_contents($full);
-            $legacy = shell_exec('git -C ' . escapeshellarg($moduleRoot) . ' show origin/dev:' . escapeshellarg($path));
-            if (!is_string($legacy) || $legacy === '') {
-                throw new RuntimeException("Cannot load origin/dev version of $path");
-            }
-            file_put_contents($full, $legacy);
-        }
-
+        $exportDir = $exportRoot . '/' . $case['id'];
+        exportModuleSnapshot($moduleRoot, $exportDir);
+        applyProveMutation($exportDir, $case['id'], $moduleRoot);
+        $junitFile = 'junit-prove-' . $case['id'] . '.xml';
         $code = runPhpUnit(
-            $moduleRoot,
+            $exportDir,
             $phpunitPhar,
             $vendorDir,
             $mysql,
             $cacheDir,
             $resultsDir,
-            'junit-prove.xml',
+            $junitFile,
             ['--filter', $case['filter']]
         );
-
-        foreach ($backups as $path => $contents) {
-            file_put_contents($moduleRoot . '/' . $path, $contents);
-        }
-
         if ($code === 0) {
-            throw new RuntimeException('Expected failing tests after reverting fix for ' . $case['filter']);
+            throw new RuntimeException('Proof mutation ' . $case['id'] . ' exited 0 but must fail');
         }
+        assertProveJUnitResult($resultsDir . '/' . $junitFile, $case['junitTestCase']);
+        fwrite(STDOUT, 'PROVE PASS: ' . $case['id'] . ' (' . $case['filter'] . ")\n");
     }
 }
 
+$runProve = in_array('--prove', $argv ?? [], true);
+$argv = array_values(array_filter($argv ?? [], static fn (string $arg): bool => $arg !== '--prove'));
+
 ensureLayout($workRoot, $vendorDir, $cacheDir, $resultsDir, $gnupgHome);
+$exportRoot = $workRoot . '/module-export';
 
 $cacheArtifact = $moduleRoot . '/tests/${PHPUNIT_CACHE_DIR}';
 if (is_dir($cacheArtifact)) {
@@ -294,6 +427,17 @@ docker(['pull', COMPOSER_IMAGE]);
 assertPdoMysqlLoaded();
 
 $mysql = startMysql();
+$mysqlContainer = $mysql['container'];
+register_shutdown_function(static function () use (&$mysqlContainer): void {
+    if ($mysqlContainer === null) {
+        return;
+    }
+    try {
+        docker(['rm', '-f', $mysqlContainer]);
+    } catch (Throwable) {
+    }
+    $mysqlContainer = null;
+});
 
 $projectDir = writeComposerProject($workRoot);
 docker([
@@ -326,7 +470,6 @@ verifyPHPUnitPharSignature($phpunitPhar, $ascPath, $gnupgHome);
 
 $defaultCode = runPhpUnit($moduleRoot, $phpunitPhar, $vendorDir, $mysql, $cacheDir, $resultsDir, 'junit-default.xml');
 if ($defaultCode !== 0) {
-    docker(['rm', '-f', $mysql['container']]);
     exit($defaultCode);
 }
 
@@ -341,13 +484,15 @@ $shuffleCode = runPhpUnit(
     ['--order-by=random', '--random-order-seed=20261010']
 );
 if ($shuffleCode !== 0) {
-    docker(['rm', '-f', $mysql['container']]);
     exit($shuffleCode);
 }
 
-proveFixReverts($moduleRoot, $phpunitPhar, $vendorDir, $mysql, $cacheDir, $resultsDir);
+if ($runProve) {
+    proveFixReverts($moduleRoot, $phpunitPhar, $vendorDir, $mysql, $cacheDir, $resultsDir, $exportRoot);
+}
 
 docker(['rm', '-f', $mysql['container']]);
+$mysqlContainer = null;
 
 $cacheArtifact = $moduleRoot . '/tests/${PHPUNIT_CACHE_DIR}';
 if (is_dir($cacheArtifact)) {

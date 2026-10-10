@@ -10,7 +10,7 @@ use ReflectionMethod;
 
 final class SuiteManifestTest extends TestCase
 {
-    private const EXPECTED_TEST_COUNT = 26;
+    private const EXPECTED_TEST_COUNT = 29;
 
     /** @var list<string> */
     private const EXPECTED_FILES = [

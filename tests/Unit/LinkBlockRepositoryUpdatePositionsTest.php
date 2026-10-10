@@ -35,7 +35,7 @@ final class LinkBlockRepositoryUpdatePositionsTest extends DatabaseTestCase
 
     public function testUpdatePositionsRollsBackOnFailure(): void
     {
-        $this->seedLinkBlockShopRows(1, [10 => 0, 20 => 1]);
+        $this->seedLinkBlockShopRows(1, [10 => 1, 20 => 0]);
         $before = $this->fetchPositions(1);
         $repository = $this->createLinkBlockRepository();
 
@@ -57,6 +57,7 @@ final class LinkBlockRepositoryUpdatePositionsTest extends DatabaseTestCase
             $this->connection->executeStatement('SET @fail_second_position_update = 0');
         }
 
+        self::assertFalse($this->connection->isTransactionActive());
         self::assertSame($before, $this->fetchPositions(1));
     }
 }

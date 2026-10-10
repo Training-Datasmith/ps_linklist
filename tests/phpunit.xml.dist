@@ -8,6 +8,8 @@
          failOnWarning="true"
          failOnRisky="true"
          failOnIncomplete="true"
+         failOnSkipped="true"
+         failOnEmptyTestSuite="true"
          beStrictAboutOutputDuringTests="true">
     <php>
         <ini name="error_reporting" value="-1"/>

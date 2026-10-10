@@ -31,7 +31,7 @@ final class LinkBlockPresenterExternalLinkTest extends TestCase
         return [
             'internal when base host casing differs' => ['https://shop.example.com/page', false],
             'true external host' => ['https://evil.example/', true],
-            'host prefix attack' => ['https://shop.example.evil/phish', true],
+            'host prefix attack' => ['https://shop.example.com.evil/phish', true],
             'relative path' => ['/contact', false],
             'external with path' => ['https://other-shop.test/item', true],
         ];

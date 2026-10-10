@@ -23,4 +23,12 @@ final class PageChoiceProviderShopFilterTest extends DatabaseTestCase
 
         self::assertSame([], $provider->getChoices());
     }
+
+    public function testMetaPageResolvedWhenShopIdsIncludeMultipleShops(): void
+    {
+        $provider = new PageChoiceProvider($this->connection, _DB_PREFIX_, 1, [2, 1], ['contact']);
+        $choices = $provider->getChoices();
+
+        self::assertSame(['Contact page' => 'contact'], $choices);
+    }
 }

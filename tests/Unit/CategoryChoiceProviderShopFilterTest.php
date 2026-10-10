@@ -19,7 +19,7 @@ final class CategoryChoiceProviderShopFilterTest extends DatabaseTestCase
         self::assertNotContains(10, $choices);
     }
 
-    public function testShopIdsAreBoundAsIntegersNotSqlInjection(): void
+    public function testShopFilterReturnsCategoriesForMultipleRequestedShops(): void
     {
         $provider = new CategoryChoiceProvider($this->connection, _DB_PREFIX_, 1, ['1', '2']);
         $choices = $provider->getChoices();
