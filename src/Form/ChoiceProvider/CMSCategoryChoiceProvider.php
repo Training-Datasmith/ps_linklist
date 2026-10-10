@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
 
+use Doctrine\DBAL\ArrayParameterType;
+
 /**
  * Class CMSCategoryChoiceProvider.
  */
@@ -40,7 +42,7 @@ final class CMSCategoryChoiceProvider extends AbstractDatabaseChoiceProvider
             ->andWhere('ccl.id_lang = :idLang')
             ->andWhere('ccs.id_shop IN (:shopIds)')
             ->setParameter('idLang', $this->idLang)
-            ->setParameter('shopIds', implode(',', $this->shopIds))
+            ->setParameter('shopIds', array_map('intval', $this->shopIds), ArrayParameterType::INTEGER)
             ->orderBy('ccl.name')
         ;
 

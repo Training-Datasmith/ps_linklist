@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\LinkList\Form\ChoiceProvider;
 
+use Doctrine\DBAL\ArrayParameterType;
 use Doctrine\DBAL\Connection;
 
 /**
@@ -72,7 +73,7 @@ final class CMSPageChoiceProvider extends AbstractDatabaseChoiceProvider
                 ->andWhere('c.id_cms_category = :idCmsCategory')
                 ->setParameter('idCmsCategory', $categoryId)
                 ->setParameter('idLang', $this->idLang)
-                ->setParameter('shopIds', implode(',', $this->shopIds))
+                ->setParameter('shopIds', array_map('intval', $this->shopIds), ArrayParameterType::INTEGER)
                 ->orderBy('c.position')
             ;
             $pages = $qb->execute()->fetchAll();

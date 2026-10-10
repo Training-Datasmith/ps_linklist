@@ -76,10 +76,11 @@ class LinkBlockPresenter
      */
     public function isExternalLink($url)
     {
-        $baseLink = preg_replace('#^(http)s?://#', '', $this->link->getBaseLink());
+        $baseLink = Tools::strtolower(preg_replace('#^(http)s?://#', '', $this->link->getBaseLink()));
+        $baseLink = rtrim($baseLink, '/');
         $url = Tools::strtolower($url);
 
-        if (preg_match('#^(http)s?://#', $url) && !preg_match('#^(http)s?://' . preg_quote(rtrim($baseLink, '/'), '/') . '#', $url)) {
+        if (preg_match('#^(http)s?://#', $url) && !preg_match('~^(http)s?://' . preg_quote($baseLink, '~') . '(?:/|\?|#|$)~', $url)) {
             return true;
         }
 

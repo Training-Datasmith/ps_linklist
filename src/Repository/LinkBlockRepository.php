@@ -22,7 +22,6 @@ namespace PrestaShop\Module\LinkList\Repository;
 
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Exception as DBALException;
-use Doctrine\DBAL\Exception\ConnectionException;
 use Doctrine\DBAL\Query\QueryBuilder;
 use Doctrine\DBAL\Result;
 use Hook;
@@ -516,14 +515,20 @@ class LinkBlockRepository
                 try {
                     $qb->execute();
                 } catch (DBALException $e) {
-                    throw new DatabaseException('Could not update #%i');
+                    throw new DatabaseException(sprintf('Could not update #%d', (int) $position['rowId']), 0, $e);
                 }
             }
             $this->connection->commit();
-        } catch (ConnectionException $e) {
-            $this->connection->rollBack();
+        } catch (\Throwable $e) {
+            if ($this->connection->isTransactionActive()) {
+                $this->connection->rollBack();
+            }
 
-            throw new DatabaseException('Could not update positions.');
+            if ($e instanceof DatabaseException) {
+                throw $e;
+            }
+
+            throw new DatabaseException('Could not update positions.', 0, $e);
         }
     }
 
